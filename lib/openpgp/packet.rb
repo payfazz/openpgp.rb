@@ -124,7 +124,7 @@ module OpenPGP
     # @see http://tools.ietf.org/html/rfc4880#section-13.1
     class AsymmetricSessionKey < Packet
       attr_accessor :version, :key_id, :algorithm
-      attr_reader :mpis
+      attr_accessor :mpis
 
       def self.parse_body(body, options = {})
         case version = body.read_byte
@@ -140,9 +140,6 @@ module OpenPGP
         end
       end
 
-      def mpis
-        @mpis ||= []
-      end
     end
 
     ##
