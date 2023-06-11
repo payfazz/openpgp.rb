@@ -593,7 +593,7 @@ module OpenPGP
     #
     # @see http://tools.ietf.org/html/rfc4880#section-5.13
     class IntegrityProtectedData < Packet
-      attr_accessor :version
+      attr_accessor :version, :encrypted_data
 
       def self.parse_body(body, options = {})
         case version = body.read_byte
