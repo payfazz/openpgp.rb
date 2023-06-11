@@ -1,3 +1,5 @@
+require_relative "./hash.rb"
+
 module OpenPGP
   ##
   # OpenPGP string-to-key (S2K) specifiers.
