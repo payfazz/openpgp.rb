@@ -130,7 +130,7 @@ module OpenPGP
         case version = body.read_byte
         when 3
           # TODO: Support other algorithm
-          instance self.new(:version => version, :key_id => body.read_number(8, 16), :algorithm => body.read_byte)
+          instance = self.new(:version => version, :key_id => body.read_number(8, 16), :algorithm => body.read_byte)
           while !body.eof?
             instance.mpis << body.read_mpi
           end
