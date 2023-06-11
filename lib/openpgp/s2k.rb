@@ -107,6 +107,10 @@ module OpenPGP
       raise NotImplementedError
     end
 
+    def run
+      raise NotImplementedError
+    end
+
     ##
     # @see http://tools.ietf.org/html/rfc4880#section-3.7.1.1
     class Simple < S2K
@@ -246,6 +250,40 @@ module OpenPGP
           result
         end
       end
+    end
+
+    # https://github.com/calccrypto/OpenPGP/blob/f1e1118ccb793d837cda4775220e839e53cb8724/src/Misc/s2k.cpp#L220
+    def run(passphrase, sym_key_len)
+      hash_class = OpenPGP::Hash.get_class(algorithm)
+      combined = salt + passphrase
+
+      digest_octets = hash_class::LENGTH >> 3
+
+      s = sym_key_len
+
+      c = 0
+
+      out = ""
+      while s > 0
+        hash = hash_class.new("\x00" * c)
+
+        hashed = 0
+        loop do
+          hash.update(combined)
+          hashed += combined.length
+
+          break if hashed + combined.length >= count
+        end
+
+        if hashed < count
+          hash.update(combined[0...count - hashed])
+        end
+
+        out += hash.digest
+        s -= digest_octets
+        c += 1
+      end
+      out[0...sym_key_len]
     end
 
     DEFAULT = Iterated
