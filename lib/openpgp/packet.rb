@@ -124,6 +124,7 @@ module OpenPGP
     # @see http://tools.ietf.org/html/rfc4880#section-13.1
     class AsymmetricSessionKey < Packet
       attr_accessor :version, :key_id, :algorithm
+      attr_accessor :encrypted_session_key
 
       def self.parse_body(body, options = {})
         case version = body.read_byte
