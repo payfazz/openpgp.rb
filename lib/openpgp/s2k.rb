@@ -15,11 +15,11 @@ module OpenPGP
     # @return [S2K]
     def self.parse(input)
       case mode = input.read_byte
-        when 0        then S2K::Simple.parse(input)       # Simple S2K
-        when 1        then S2K::Salted.parse(input)       # Salted S2K
-        when 3        then S2K::Iterated.parse(input)     # Iterated and Salted S2K
-        when 100..110 then S2K.new(:data => input.read)   # Private/Experimental S2K
-        else # TODO
+      when 0        then S2K::Simple.parse(input)       # Simple S2K
+      when 1        then S2K::Salted.parse(input)       # Salted S2K
+      when 3        then S2K::Iterated.parse(input)     # Iterated and Salted S2K
+      when 100..110 then S2K.new(:data => input.read)   # Private/Experimental S2K
+      else # TODO
       end
     end
 
@@ -69,14 +69,14 @@ module OpenPGP
     # @return [Object]
     def to_key(key_size = 16)
       key = if digest.size >= key_size
-        digest.digest(digest_input)
-      else
-        Buffer.write do |buffer|
-          (key_size / digest.size.to_f).ceil.times do |i|
-            buffer << digest.digest(digest_input_with_preload(i))
-          end
-        end
-      end
+              digest.digest(digest_input)
+            else
+              Buffer.write do |buffer|
+                (key_size / digest.size.to_f).ceil.times do |i|
+                  buffer << digest.digest(digest_input_with_preload(i))
+                end
+              end
+            end
       key[0, key_size]
     end
 
@@ -84,12 +84,12 @@ module OpenPGP
     # @return [Class]
     def digest
       @digest ||= case algorithm
-        when nil    then Digest::DEFAULT
-        when Digest then algorithm
-        when Symbol then Digest.for(algorithm)
-        when String then Digest.for(algorithm)
-        else Digest.for(algorithm.to_i)
-      end
+                  when nil    then Digest::DEFAULT
+                  when Digest then algorithm
+                  when Symbol then Digest.for(algorithm)
+                  when String then Digest.for(algorithm)
+                  else Digest.for(algorithm.to_i)
+                  end
     end
 
     ##
@@ -185,7 +185,7 @@ module OpenPGP
       end
 
       # @return [Integer]
-      attr_reader :count
+      attr_accessor :count
 
       ##
       # @param  [String, #to_s]          passphrase
@@ -221,32 +221,31 @@ module OpenPGP
         end
       end
 
-      protected
 
-        EXPBIAS = 6
+      EXPBIAS = 6
 
-        ##
-        # @param  [Integer] count
-        # @return [Integer]
-        def decode_count(count)
-          (16 + (count & 15)) << ((count >> 4) + EXPBIAS)
+      ##
+      # @param  [Integer] count
+      # @return [Integer]
+      def decode_count(count)
+        (16 + (count & 15)) << ((count >> 4) + EXPBIAS)
+      end
+
+      ##
+      # @param  [Integer] iterations
+      # @return [Integer]
+      def encode_count(iterations)
+        case iterations
+        when 0..1024           then 0
+        when 65011712..(1.0/0) then 255
+        else
+          count1 = iterations >> 6
+          count2 = (count2 || 0) + 1 while count1 >= 32 && count1 >>= 1
+          result = (count2 << 4) | (count1 - 16)
+          result += 1 if decode_count(result) < iterations
+          result
         end
-
-        ##
-        # @param  [Integer] iterations
-        # @return [Integer]
-        def encode_count(iterations)
-          case iterations
-            when 0..1024           then 0
-            when 65011712..(1.0/0) then 255
-            else
-              count1 = iterations >> 6
-              count2 = (count2 || 0) + 1 while count1 >= 32 && count1 >>= 1
-              result = (count2 << 4) | (count1 - 16)
-              result += 1 if decode_count(result) < iterations
-              result
-          end
-        end
+      end
     end
 
     DEFAULT = Iterated
