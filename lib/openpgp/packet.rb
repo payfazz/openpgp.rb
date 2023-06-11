@@ -124,13 +124,13 @@ module OpenPGP
     # @see http://tools.ietf.org/html/rfc4880#section-13.1
     class AsymmetricSessionKey < Packet
       attr_accessor :version, :key_id, :algorithm
-      attr_accessor :mpis
+      attr_reader :mpis
 
       def self.parse_body(body, options = {})
         case version = body.read_byte
         when 3
           # TODO: Support other algorithm
-          instance = self.new(:version => version, :key_id => body.read_number(8, 16), :algorithm => body.read_byte)
+          instance = self.new(:version => version, :key_id => body.read_number(8, 16), :algorithm => body.read_byte, :mpis => [])
           while !body.eof?
             instance.mpis << body.read_mpi
           end
@@ -138,6 +138,10 @@ module OpenPGP
         else
           raise "Invalid OpenPGP public-key ESK packet version: #{version}"
         end
+      end
+
+      def mpis
+        @mpis ||= []
       end
     end
 
