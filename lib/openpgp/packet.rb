@@ -455,7 +455,17 @@ module OpenPGP
     #
     # @see http://tools.ietf.org/html/rfc4880#section-5.6
     class CompressedData < Packet
-      # TODO
+      
+      attr_accessor :algorithm, :compressed_data
+
+      def self.parse_body(body, options = {})
+        self.new(:algorithm => body.read_byte, :compressed_data => body.read)
+      end
+
+      def decompress
+        data = Compressor.get_class(algorithm).new.decompress(compressed_data)
+        Message.parse(data)
+      end
     end
 
     ##

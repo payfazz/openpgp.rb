@@ -19,6 +19,8 @@ module OpenPGP
   autoload :Armor,     'openpgp/armor'
   autoload :Buffer,    'openpgp/buffer'
   autoload :Cipher,    'openpgp/cipher'
+  autoload :Constant,  'openpgp/constant'
+  autoload :Compressor,'openpgp/compressor'
   autoload :Digest,    'openpgp/digest'
   autoload :Engine,    'openpgp/engine'
   autoload :Message,   'openpgp/message'
