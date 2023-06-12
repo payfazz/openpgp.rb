@@ -1,3 +1,5 @@
+require_relative "./constant.rb"
+
 module OpenPGP
   ##
   # OpenPGP packet.
