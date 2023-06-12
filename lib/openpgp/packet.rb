@@ -130,7 +130,7 @@ module OpenPGP
         out.write_byte(b.length)
       else
         out.write_byte(255)
-        out.write_number(b.length)
+        out.write_number(b.length, 4)
       end
 
       out.write(b)
