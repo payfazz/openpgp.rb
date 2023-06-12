@@ -169,6 +169,15 @@ module OpenPGP
         end
       end
 
+      def write_body(buffer)
+        buffer.write_byte(version)
+        buffer.write_number(version, 8)
+        buffer.write_byte(algorithm)
+        mpis.each do |mpi|
+          buffer.write_mpi(mpi)
+        end
+      end
+
     end
 
     ##
