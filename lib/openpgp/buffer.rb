@@ -6,9 +6,13 @@ module OpenPGP
     ##
     # @return [String]
     def self.write(*args, &block)
-      buffer = self.new(*args, &block)
-      buffer.string
+      buffer = self.new
+      block.call(buffer)
+      buffer.rewind
+      buffer.read
     end
+
+
 
     ##
     # @yield  [buffer]
