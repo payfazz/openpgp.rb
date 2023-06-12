@@ -610,12 +610,12 @@ module OpenPGP
     #
     # @see http://tools.ietf.org/html/rfc4880#section-5.13
     class IntegrityProtectedData < Packet
-      attr_accessor :version, :encrypted_data
+      attr_accessor :version, :data
 
       def self.parse_body(body, options = {})
         case version = body.read_byte
         when 1
-          self.new(:version => version, :encrypted_data => body.read) # TODO: read the encrypted data.
+          self.new(:version => version, :data => body.read) # TODO: read the encrypted data.
         else
           raise "Invalid OpenPGP integrity-protected data packet version: #{version}"
         end
