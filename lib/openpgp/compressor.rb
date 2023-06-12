@@ -34,12 +34,28 @@ module OpenPGP
         zlib.finish
         zlib.close
       end
+
+      def compress(data)
+        zlib = ::Zlib::Deflate.new(::Zlib::DEFAULT_COMPRESSION, -::Zlib::MAX_WBITS)
+        zlib.deflate(data)
+      ensure
+        zlib.finish
+        zlib.close
+      end
     end
 
     class Zlib < Compressor
       def decompress(data)
         zlib = ::Zlib::Inflate.new
         zlib.inflate(data)
+      ensure
+        zlib.finish
+        zlib.close
+      end
+
+      def decompress(data)
+        zlib = ::Zlib::Deflate.new(::Zlib::DEFAULT_COMPRESSION)
+        zlib.deflate(data)
       ensure
         zlib.finish
         zlib.close
