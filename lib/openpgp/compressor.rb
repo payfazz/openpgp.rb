@@ -53,7 +53,7 @@ module OpenPGP
     @@tags = {
       Constant::Compression::No => PassThru,
       Constant::Compression::Zip => Zip,
-      Constant::Compression::Zlib => Zlib
+      Constant::Compression::Zlib => Zlib,
       Constant::Compression::BZip => BZip
     }
   end
