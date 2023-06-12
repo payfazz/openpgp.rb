@@ -116,7 +116,7 @@ module OpenPGP
 
       out.write(b)
       out.rewind
-      out.read
+      out.read.force_encoding("ASCII-8BIT")
     end
 
     ##
