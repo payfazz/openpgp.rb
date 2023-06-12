@@ -468,6 +468,11 @@ module OpenPGP
         data = Compressor.get_class(algorithm).new.decompress(compressed_data)
         Message.parse(data)
       end
+
+      def write_body(buffer)
+        buffer.write_byte(algorithm)
+        buffer.write(compressed_data)
+      end
     end
 
     ##
