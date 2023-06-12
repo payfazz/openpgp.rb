@@ -28,7 +28,7 @@ module OpenPGP
 
     class Zip < Compressor
       def decompress(data)
-        zlib = ::Zlib::Inflate.new(-Zlib::MAX_WBITS)
+        zlib = ::Zlib::Inflate.new(-::Zlib::MAX_WBITS)
         zlib.inflate(data)
       ensure
         zlib.finish
