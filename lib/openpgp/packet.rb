@@ -122,7 +122,7 @@ module OpenPGP
     def build_new_format
       out = Buffer.new
       tag = Packet.ifor(self.class) | 64
-      buffer.write_byte(tag)
+      out.write_byte(tag)
       b = body()
 
       case b.length
