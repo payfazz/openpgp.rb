@@ -352,6 +352,13 @@ module OpenPGP
                          end
       end
 
+      def keyid
+        case version
+        when 4
+          fingerprint[12...12+8]
+        end
+      end
+
       def to_der
         n = OpenSSL::BN.new(key[:n], 2)
         e = OpenSSL::BN.new(key[:e], 2)
