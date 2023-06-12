@@ -666,6 +666,11 @@ module OpenPGP
           raise "Invalid OpenPGP integrity-protected data packet version: #{version}"
         end
       end
+
+      def write_body(buffer)
+        buffer.write_byte(version)
+        buffer.write(data)
+      end
     end
 
     ##
