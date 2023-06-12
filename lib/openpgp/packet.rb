@@ -119,6 +119,27 @@ module OpenPGP
       out.read.force_encoding("ASCII-8BIT")
     end
 
+    def build_new_format
+      out = Buffer.new
+      tag = Packet.ifor(self.class) | 64
+      buffer.write_byte(tag)
+      b = body()
+
+      case b.length
+      when 0..0xFF
+        out.write_byte(0)
+        out.write_byte(b.length)
+      when 0xFF+1..0xFFFF
+        raise
+      else
+        raise
+      end
+
+      out.write(b)
+      out.rewind
+      out.read.force_encoding("ASCII-8BIT")
+    end
+
     ##
     # @param  [Buffer]                 body
     # @param  [Hash{Symbol => Object}] options
