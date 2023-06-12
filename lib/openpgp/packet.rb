@@ -100,6 +100,7 @@ module OpenPGP
     def build_old_format
       out = Buffer.new
       tag = Packet.ifor(self.class)
+      b = body()
 
       case b.length
       when 0..0xFF
@@ -113,7 +114,7 @@ module OpenPGP
         out.write([b.length].pack("L>"))
       end
 
-      out.write(body())
+      out.write(b)
       out.rewind
       out.read
     end
