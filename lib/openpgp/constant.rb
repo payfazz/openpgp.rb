@@ -7,7 +7,7 @@ module OpenPGP
     end
 
     module SymmetricKeyAlgorithm
-      NO = 0
+      No = 0
       AES128 = 7
       AES192 = 8
       AES256 = 9
@@ -15,10 +15,10 @@ module OpenPGP
 
 
     module Compression
-      NO = 0
-      ZIP = 1
-      ZLIB = 2
-      BZIP = 3
+      No = 0
+      Zip = 1
+      Zlib = 2
+      BZip = 3
     end
   end
 

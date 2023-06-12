@@ -6,3 +6,4 @@ begin
 rescue LoadError => e
 end
 require 'openpgp'
+
