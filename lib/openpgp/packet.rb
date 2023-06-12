@@ -129,7 +129,8 @@ module OpenPGP
       when 0..191
         out.write_byte(b.length)
       else
-        raise
+        out.write_byte(255)
+        out.write_number(b.length)
       end
 
       out.write(b)
