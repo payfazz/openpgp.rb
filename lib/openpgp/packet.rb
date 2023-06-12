@@ -143,7 +143,7 @@ module OpenPGP
     ##
     # @return [String]
     def body
-      respond_to?(:write_body) ? Buffer.write { |buffer| write_body(buffer) } : ""
+      respond_to?(:write_body) ? Buffer.write { |buffer| write_body(buffer) }.force_encoding('ASCII-8BIT') : ""
     end
 
     ##
