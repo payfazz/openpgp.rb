@@ -501,7 +501,7 @@ module OpenPGP
       end
 
       def self.compress(algorithm, data)
-        dataa = Compressor.get_class(algorithm).new.compress(data)
+        data = Compressor.get_class(algorithm).new.compress(data)
         self.new(:algorithm => algorithm, :compressed_data => data)
       end
 
