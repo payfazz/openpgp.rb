@@ -69,7 +69,7 @@ module OpenPGP
     # @see    http://tools.ietf.org/html/rfc4880#section-3.1
     def write_number(number, count)
       while count > 0
-        write_byte((number >> (8 * (count-1)) & 0xFF))
+        write_byte(((number >> (8 * (count-1))) & 0xFF))
         count -= 1
       end
     end
@@ -88,7 +88,7 @@ module OpenPGP
     # @return [Buffer]
     # @see    http://tools.ietf.org/html/rfc4880#section-3.2
     def write_mpi(mpi)
-      write([mpi.length].pack('n'))
+      write([mpi.length * 8].pack('n'))
       write(mpi)
     end
 
