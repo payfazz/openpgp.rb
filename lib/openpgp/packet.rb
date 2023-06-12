@@ -126,11 +126,8 @@ module OpenPGP
       b = body()
 
       case b.length
-      when 0..0xFF
-        out.write_byte(0)
+      when 0..191
         out.write_byte(b.length)
-      when 0xFF+1..0xFFFF
-        raise
       else
         raise
       end
