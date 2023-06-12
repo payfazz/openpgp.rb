@@ -18,6 +18,11 @@ module OpenPGP
       @@tags[tag.to_i] || self
     end
 
+    def self.ifor(cls)
+      @@tags.invert[cls]
+    end
+
+
     ##
     # Returns the packet tag for this class.
     #
@@ -90,6 +95,27 @@ module OpenPGP
       end
 
       Packet.for(tag).parse_body(Buffer.new(data_length ? data.read(data_length) : data.read), :tag => tag)
+    end
+
+    def build_old_format
+      out = Buffer.new
+      tag = Packet.ifor(self.class)
+
+      case b.length
+      when 0..0xFF
+        out.write_byte((tag << 2) | 0)
+        out.write_byte(b.length)
+      when 0xFF+1..0xFFFF
+        out.write_byte((tag << 2) | 1)
+        out.write([b.length].pack("S>"))
+      else
+        out.write_byte((tag << 2) | 2)
+        out.write([b.length].pack("L>"))
+      end
+
+      out.write(body())
+      out.rewind
+      out.read
     end
 
     ##
