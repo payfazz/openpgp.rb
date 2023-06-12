@@ -171,7 +171,7 @@ module OpenPGP
 
       def write_body(buffer)
         buffer.write_byte(version)
-        buffer.write_number(version, 8)
+        buffer.write_number(key_id, 8)
         buffer.write_byte(algorithm)
         mpis.each do |mpi|
           buffer.write_mpi(mpi)
@@ -498,6 +498,11 @@ module OpenPGP
 
       def self.parse_body(body, options = {})
         self.new(:algorithm => body.read_byte, :compressed_data => body.read)
+      end
+
+      def self.compress(algorithm, data)
+        dataa = Compressor.get_class(algorithm).new.compress(data)
+        self.new(:algorithm => algorithm, :compressed_data => data)
       end
 
       def decompress
