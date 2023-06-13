@@ -266,6 +266,7 @@ module OpenPGP
       end
 
       def write_body(buffer)
+        buffer.write_byte(version)
         write_v4_signature(buffer) 
       end
 
