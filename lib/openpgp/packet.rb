@@ -365,8 +365,12 @@ module OpenPGP
 
       def keyid
 	case version
+        when 2, 3
+          raise "Unimplemented"
 	when 4
-	  fingerprint[12...12+8]
+          fingerprint[12...12+8].unpack("H*").last
+        else
+          raise "No such version"
 	end
       end
 
