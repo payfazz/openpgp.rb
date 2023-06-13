@@ -104,13 +104,13 @@ module OpenPGP
 
       case b.length
       when 0..0xFF
-	out.write_byte((tag << 2) | 0)
+	out.write_byte((tag << 2) | 0 | 128)
 	out.write_byte(b.length)
       when 0xFF+1..0xFFFF
-	out.write_byte((tag << 2) | 1)
+	out.write_byte((tag << 2) | 1 | 128)
 	out.write([b.length].pack("S>"))
       else
-	out.write_byte((tag << 2) | 2)
+	out.write_byte((tag << 2) | 2 | 128)
 	out.write([b.length].pack("L>"))
       end
 
