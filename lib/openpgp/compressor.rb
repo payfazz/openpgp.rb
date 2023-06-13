@@ -52,7 +52,7 @@ module OpenPGP
         zlib.close
       end
 
-      def decompress(data)
+      def compress(data)
         zlib = ::Zlib::Deflate.new(::Zlib::DEFAULT_COMPRESSION)
         zlib.deflate(data, ::Zlib::FINISH)
       ensure
