@@ -554,8 +554,11 @@ module OpenPGP
       end
 
       def decompress
-	data = Compressor.get_class(algorithm).new.decompress(compressed_data)
-	Message.parse(data)
+	Message.parse(decompress_raw())
+      end
+
+      def decompress_raw
+	Compressor.get_class(algorithm).new.decompress(compressed_data)
       end
 
       def write_body(buffer)
