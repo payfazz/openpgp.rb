@@ -88,7 +88,7 @@ module OpenPGP
     # @return [Buffer]
     # @see    http://tools.ietf.org/html/rfc4880#section-3.2
     def write_mpi(mpi)
-      write([mpi.length * 8].pack('n'))
+      write([OpenPGP.bitlength(mpi)].pack('n'))
       write(mpi)
     end
 
