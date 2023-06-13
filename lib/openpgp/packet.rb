@@ -307,7 +307,7 @@ module OpenPGP
         write_v4_signature(buffer) 
       end
 
-      def wirte_v4_signature(buffer)
+      def write_v4_signature(buffer)
         buffer.write_byte(@type)
         buffer.write_byte(@key_algorithm)
         buffer.write_byte(@hash_algorithm)
