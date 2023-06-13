@@ -68,6 +68,10 @@ module OpenPGP
     # @return [Buffer]
     # @see    http://tools.ietf.org/html/rfc4880#section-3.1
     def write_number(number, count)
+      if number.is_a(String)
+        number = number.to_i(16)
+      end
+
       while count > 0
         write_byte(((number >> (8 * (count-1))) & 0xFF))
         count -= 1

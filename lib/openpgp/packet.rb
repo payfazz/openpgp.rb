@@ -190,7 +190,7 @@ module OpenPGP
 
       def write_body(buffer)
 	buffer.write_byte(version)
-	buffer.write_number(key_id, 8)
+        buffer.write_number(key_id, 8)
 	buffer.write_byte(algorithm)
 	mpis.each do |mpi|
 	  buffer.write_mpi(mpi)
