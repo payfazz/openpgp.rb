@@ -1,4 +1,5 @@
 require File.join(File.dirname(__FILE__), 'spec_helper')
+require 'pry'
 
 describe OpenPGP::Message, " at <http://ar.to/pgp.txt>" do
   before :each do
@@ -40,6 +41,10 @@ describe OpenPGP::Message, " at <http://ar.to/pgp.txt>" do
       @message = OpenPGP::Message.parse(OpenPGP.dearmor(@ascii))
       @message.map(&:class).should include(OpenPGP::Packet::UserID)
       @message.find_all { |packet| packet.is_a?(OpenPGP::Packet::UserID) }.should have(3).items
+    end
+
+    it "loads real message" do
+      msg = described_class.parse(OpenPGP.dearmor(File.read(File.join(File.dirname(__FILE__), 'data', 'msg.pgp'))))
     end
   end
 end
