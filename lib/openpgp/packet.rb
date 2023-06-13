@@ -306,7 +306,7 @@ module OpenPGP
     class PublicKey < Packet
       attr_accessor :size
       attr_accessor :version, :timestamp, :algorithm
-      attr_accessor :key, :key_fields, :key_id, :fingerprint
+      attr_accessor :key, :key_fields
 
       #def parse(data) # FIXME
       def self.parse_body(body, options = {})
@@ -332,7 +332,6 @@ module OpenPGP
 		      else raise "Unknown OpenPGP key algorithm: #{algorithm}"
 		      end
 	@key_fields.each { |field| key[field] = body.read_mpi }
-	@key_id = fingerprint[-8..-1]
       end
 
       ##
@@ -363,7 +362,7 @@ module OpenPGP
 	end
       end
 
-      def keyid
+      def key_id
 	case version
         when 2, 3
           raise "Unimplemented"
