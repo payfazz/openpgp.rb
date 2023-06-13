@@ -23,6 +23,7 @@ module OpenPGP
   autoload :Compressor,'openpgp/compressor'
   autoload :Digest,    'openpgp/digest'
   autoload :Engine,    'openpgp/engine'
+  autoload :Hash,      'openpgp/hash'
   autoload :Message,   'openpgp/message'
   autoload :Packet,    'openpgp/packet'
   autoload :Random,    'openpgp/random'
