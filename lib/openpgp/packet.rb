@@ -265,6 +265,10 @@ module OpenPGP
         end
       end
 
+      def write_body(buffer)
+        write_v4_signature(buffer) 
+      end
+
       protected
 
       ##
@@ -301,10 +305,6 @@ module OpenPGP
         @signed_prefix = body.read_bytes(2)
         read_signature(body)
         self
-      end
-
-      def write_body(buffer)
-        write_v4_signature(buffer) 
       end
 
       def write_v4_signature(buffer)
