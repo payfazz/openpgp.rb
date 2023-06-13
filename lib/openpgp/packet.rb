@@ -88,7 +88,7 @@ module OpenPGP
     end
 
     def body
-      respond_to?(:write_body) ? Buffer.write { |buffer| write_body(buffer) } : ""
+      respond_to?(:write_body) ? Buffer.write { |buffer| write_body(buffer) }.force_encoding("ASCII-8BIT") : "".force_encoding("ASCII-8BIT")
     end
 
     @tags = {}
