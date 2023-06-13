@@ -368,7 +368,7 @@ module OpenPGP
         when 2, 3
           raise "Unimplemented"
 	when 4
-          fingerprint[12...12+8].unpack("H*").last
+          fingerprint[12...12+8].unpack("H*").last.upcase
         else
           raise "No such version"
 	end
