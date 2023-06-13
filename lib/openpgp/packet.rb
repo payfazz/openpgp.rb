@@ -138,6 +138,14 @@ module OpenPGP
       out.read.force_encoding("ASCII-8BIT")
     end
 
+    def build
+      if Packet.ifor(self.class) <= 15
+        build_old_format
+      else
+        build_new_format
+      end
+    end
+
     ##
     # @param  [Buffer]                 body
     # @param  [Hash{Symbol => Object}] options
