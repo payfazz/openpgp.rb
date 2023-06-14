@@ -119,17 +119,11 @@ module OpenPGP
       inject(0) { |sum, packet| sum + packet.size }
     end
 
-    ##
-    # @return [String]
-    def to_s
-      Buffer.write do |buffer|
-        packets.each do |packet|
-          if body = packet.body
-            buffer.write_byte(packet.class.tag | 0xC0)
-            buffer.write_byte(body.size)
-            buffer.write_bytes(body)
-          end
-        end
+    def build(armor: true)
+      if armor
+        OpenPGP::Armor.encode(packets.map{|p| p.build }.join)
+      else
+        packets.map{|p| p.build }.join
       end
     end
   end
