@@ -283,8 +283,6 @@ module OpenPGP
         write_v4_signature(buffer) 
       end
 
-      protected
-
       ##
       # @see http://tools.ietf.org/html/rfc4880#section-5.2.2
       def read_v3_signature(body)
@@ -483,7 +481,10 @@ module OpenPGP
       attr_accessor :key_id
       attr_accessor :nested_flag
 
-      autoparse(version: 1, type: 1, hash_algorithm: 1, key_algorithm: 1, key_id: [ ], nested_flag: 1)
+      autoparse(version: 1, type: 1, hash_algorithm: 1, key_algorithm: 1,
+        key_id: [proc { |body| body.read_number(8, 16)}, proc { |body, value| body.write_number(value, 8) }],
+        nested_flag: 1
+      )
     end
 
     ##
