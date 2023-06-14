@@ -323,11 +323,13 @@ module OpenPGP
         buffer.write_byte(@type)
         buffer.write_byte(@key_algorithm)
         buffer.write_byte(@hash_algorithm)
-        buffer.write_number(@hashed.count, 2)
-        buffer.write(@hashed.map{|h| h.build}.join)
-        buffer.write_number(@unhashed.count, 2)
-        buffer.write(@unhashed.map{|h| h.build}.join)
-        buffer.write_number(@digest_prefix, 2)
+        hashed_data = @hashed.map{|h| h.build}.join
+        buffer.write_number(hashed_data.size, 2)
+        buffer.write(hashed_data)
+        unhashed_data = @unhashed.map{|h| h.build}.join
+        buffer.write_number(unhashed_data.size, 2)
+        buffer.write(unhashed_data)
+        buffer.write(@digest_prefix)
 
         @fields.each do |f|
           buffer.write_mpi(f)
