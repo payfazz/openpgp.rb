@@ -372,7 +372,7 @@ module OpenPGP
             b.write_byte(hash_algorithm)
             b.write_number(hashed_data.size, 2)
             b.write(hashed_data)
-          end
+          end.force_encoding("ASCII-8BIT")
         end
       end
 
