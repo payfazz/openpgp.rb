@@ -29,10 +29,16 @@ module OpenPGP
         initializer = {}
         attrs.each do |k, v|
           case v
+          case 1
+            initializer[k] = body.read_byte
+          case 2..8
+            initializer[k] = body.read_number(v)
           when :timestamp
             initializer[k] = body.read_timestamp
           when Array
             initializer[k] = v[0].call(body)
+          else
+            initializer[k] = v.read(body)
           end
         end
 
@@ -41,11 +47,18 @@ module OpenPGP
 
       self.define_method(:write_body) do |buffer|
         attrs.each do |k, v|
+          value = instance_variable_get(:"@#{k}")
           case v
+          case 1
+            initializer[k] = body.write_byte(value)
+          case 2..8
+            initializer[k] = body.write_number(value, v)
           when :timestamp
-            buffer.write_timestamp(instance_variable_get(:"@#{k}"))
+            buffer.write_timestamp(value)
           when Array
-            v[1].call(buffer, instance_variable_get(:"@#{k}"))
+            v[1].call(buffer, value)
+          else
+            initializer[k] = v.write(body)
           end
         end
       end
@@ -464,7 +477,13 @@ module OpenPGP
     #
     # @see http://tools.ietf.org/html/rfc4880#section-5.4
     class OnePassSignature < Packet
-      # TODO
+      attr_accessor :version
+      attr_accessor :type
+      attr_accessor :hash_algorithm, :key_algorithm
+      attr_accessor :key_id
+      attr_accessor :nested_flag
+
+      autoparse(version: 1, type: 1, hash_algorithm: 1, key_algorithm: 1, key_id: [ ], nested_flag: 1)
     end
 
     ##

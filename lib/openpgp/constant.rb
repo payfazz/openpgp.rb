@@ -20,6 +20,14 @@ module OpenPGP
       Zlib = 2
       BZip = 3
     end
+
+    module Hash
+      MD5 = 1
+      SHA1 = 2
+      SHA256 = 8
+      SHA384 = 9
+      SHA512 = 10
+    end
   end
 
 end
