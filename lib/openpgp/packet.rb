@@ -348,6 +348,23 @@ module OpenPGP
                             end
       end
 
+      def hashed_data_for_signing
+        case version
+        when 3
+          raise "Unimplemented"
+        when 4
+          Buffer.write do |b|
+            hashed_data = hashed.map{ |h| h.build }.join
+            b.write_byte(0x04)
+            b.write_byte(type)
+            b.write_byte(key_algorithm)
+            b.write_byte(hash_algorithm)
+            b.write_number(hashed_data.size, 2)
+            b.write(hashed_data)
+          end
+        end
+      end
+
       class Subpacket < BasePacket
         def self.parse(data)
           data = Buffer.new(data.to_str) if data.respond_to?(:to_str)
