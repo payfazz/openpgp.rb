@@ -268,7 +268,7 @@ module OpenPGP
       attr_accessor :key_id
       attr_accessor :fields
       attr_accessor :hashed, :unhashed
-      attr_accessor :signed_prefix
+      attr_accessor :digest_prefix
 
       def self.parse_body(body, options = {})
         case version = body.read_byte
@@ -314,7 +314,7 @@ module OpenPGP
           @unhashed << Subpacket.parse(unhashed_data)
         end
         # signedHashValuePrefix 
-        @signed_prefix = body.read_bytes(2)
+        @digest_prefix = body.read_bytes(2)
         read_signature(body)
         self
       end
@@ -327,7 +327,7 @@ module OpenPGP
         buffer.write(@hashed.map{|h| h.build}.join)
         buffer.write_number(@unhashed.count, 2)
         buffer.write(@unhashed.map{|h| h.build}.join)
-        buffer.write_number(@signed_prefix, 2)
+        buffer.write_number(@digest_prefix, 2)
 
         @fields.each do |f|
           buffer.write_mpi(f)
