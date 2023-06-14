@@ -50,15 +50,15 @@ module OpenPGP
           value = instance_variable_get(:"@#{k}")
           case v
           when 1
-            initializer[k] = body.write_byte(value)
+            buffer.write_byte(value)
           when 2..8
-            initializer[k] = body.write_number(value, v)
+            buffer.write_number(value, v)
           when :timestamp
             buffer.write_timestamp(value)
           when Array
             v[1].call(buffer, value)
           else
-            initializer[k] = v.write(body)
+            v.write(buffer)
           end
         end
       end
@@ -948,3 +948,4 @@ module OpenPGP
     }
   end
 end
+
