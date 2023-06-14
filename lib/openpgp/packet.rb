@@ -29,9 +29,9 @@ module OpenPGP
         initializer = {}
         attrs.each do |k, v|
           case v
-          case 1
+          when 1
             initializer[k] = body.read_byte
-          case 2..8
+          when 2..8
             initializer[k] = body.read_number(v)
           when :timestamp
             initializer[k] = body.read_timestamp
@@ -49,9 +49,9 @@ module OpenPGP
         attrs.each do |k, v|
           value = instance_variable_get(:"@#{k}")
           case v
-          case 1
+          when 1
             initializer[k] = body.write_byte(value)
-          case 2..8
+          when 2..8
             initializer[k] = body.write_number(value, v)
           when :timestamp
             buffer.write_timestamp(value)
