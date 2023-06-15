@@ -685,8 +685,8 @@ module OpenPGP
         cipher
       end
 
-      def to_der(passphrase:)
-        priv_keys = decrypt_keys(passphrase: passphrase)
+      def to_der(passphrase: nil, sym_key: nil)
+        priv_keys = decrypt_keys(passphrase: passphrase, sym_key: sym_key)
 
         n = OpenSSL::BN.new(key[:n], 2)
         e = OpenSSL::BN.new(key[:e], 2)
@@ -950,4 +950,5 @@ module OpenPGP
     }
   end
 end
+
 
