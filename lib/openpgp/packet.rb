@@ -42,7 +42,7 @@ module OpenPGP
           end
         end
 
-        self.new(initializer)
+        self.new(initializer.merge(options))
       end
 
       self.define_method(:write_body) do |buffer|
@@ -237,7 +237,7 @@ module OpenPGP
         case version = body.read_byte
         when 3
           # TODO: Support other algorithm
-          instance = self.new(:version => version, :key_id => body.read_number(8, 16), :algorithm => body.read_byte, :mpis => [])
+          instance = self.new(:version => version, :key_id => body.read_number(8, 16), :algorithm => body.read_byte, :mpis => [], **options)
           while !body.eof?
             instance.mpis << body.read_mpi
           end
@@ -379,6 +379,7 @@ module OpenPGP
       end
 
       class Subpacket < BasePacket
+        attr_accessor :raw_data
         def self.parse(data)
           data = Buffer.new(data.to_str) if data.respond_to?(:to_str)
           first_octet = data.read_byte
@@ -393,7 +394,11 @@ module OpenPGP
 
           tag = data.read_byte
 
-          self.for(tag).parse_body(Buffer.new(data.read(length)), :tag => tag)
+          self.for(tag).parse_body(Buffer.new(data.read(length-1)), :tag => tag)
+        end
+
+        def self.parse_body(body, options={})
+          self.new(:raw_data => body.read.force_encoding("ASCII-8BIT"), **options)
         end
 
         def build
@@ -403,15 +408,24 @@ module OpenPGP
           ll = 0
           case b.length
           when 0...192
-            out.write_byte(b.length+1)
+            out.write_byte(b.length + 1)
           else
             out.write_byte(255)
-            out.write_number(b.length+5, 4)
+            out.write_number(b.length + 1, 4)
           end
-          out.write_byte(Subpacket.ifor(self.class))
+          cls = Subpacket.ifor(self.class)
+          if cls.nil?
+            out.write_byte(@tag)
+          else
+            out.write_byte(cls)
+          end
           out.write(b)
           out.rewind
           out.read.force_encoding("ASCII-8BIT")
+        end
+
+        def write_body(buffer)
+          buffer.write(raw_data)
         end
 
         class SignatureCreationTime < Subpacket
@@ -507,7 +521,7 @@ module OpenPGP
         when 2, 3
           # TODO
         when 4
-          packet = self.new(:version => version, :timestamp => body.read_timestamp, :algorithm => body.read_byte, :key => {}, :size => body.size)
+          packet = self.new(:version => version, :timestamp => body.read_timestamp, :algorithm => body.read_byte, :key => {}, :size => body.size, **options)
           packet.read_key_material(body)
           packet
         else
@@ -730,12 +744,12 @@ module OpenPGP
       attr_accessor :algorithm, :compressed_data
 
       def self.parse_body(body, options = {})
-        self.new(:algorithm => body.read_byte, :compressed_data => body.read)
+        self.new(:algorithm => body.read_byte, :compressed_data => body.read, **options)
       end
 
       def self.compress(algorithm, data)
         data = Compressor.get_class(algorithm).new.compress(data)
-        self.new(:algorithm => algorithm, :compressed_data => data)
+        self.new(:algorithm => algorithm, :compressed_data => data, :tag => Packet.ifor(self))
       end
 
       def decompress
@@ -950,5 +964,6 @@ module OpenPGP
     }
   end
 end
+
 
 
