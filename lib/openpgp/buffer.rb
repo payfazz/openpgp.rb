@@ -60,7 +60,7 @@ module OpenPGP
       read_bytes(count).each_byte do |octet|
         number += octet << (shift -= 8)
       end
-      !base ? number : number.to_s(base).upcase
+      !base ? number : number.to_s(base).rjust(count * 2, '0').upcase
     end
 
     ##
