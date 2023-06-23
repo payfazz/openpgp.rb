@@ -119,9 +119,9 @@ module OpenPGP
       inject(0) { |sum, packet| sum + packet.size }
     end
 
-    def build(armor: true)
+    def build(armor: true, type: :message)
       if armor
-        OpenPGP::Armor.encode(packets.map{|p| p.build }.join)
+        OpenPGP::Armor.encode(packets.map{|p| p.build }.join, marker: type)
       else
         packets.map{|p| p.build }.join
       end
