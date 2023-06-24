@@ -124,7 +124,7 @@ module OpenPGP
 
     def build(armor: true)
       if armor
-        OpenPGP::Armor.encode(packets.map{|p| p.build }.join, marker: marker)
+        OpenPGP::Armor.encode(packets.map{|p| p.build }.join, marker)
       else
         packets.map{|p| p.build }.join
       end
