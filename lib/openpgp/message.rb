@@ -10,6 +10,8 @@ module OpenPGP
 
     # @return [Array<Packet>]
     attr_accessor :packets
+    # @return Symbol
+    attr_accessor :marker
 
     ##
     # Creates an encrypted OpenPGP message.
@@ -81,8 +83,9 @@ module OpenPGP
 
     ##
     # @param  [Array<Packet>] packets
-    def initialize(*packets, &block)
+    def initialize(*packets, marker: :message, &block)
       @packets = packets.flatten
+      @marker = marker
       block.call(self) if block_given?
     end
 
@@ -119,9 +122,9 @@ module OpenPGP
       inject(0) { |sum, packet| sum + packet.size }
     end
 
-    def build(armor: true, type: :message)
+    def build(armor: true)
       if armor
-        OpenPGP::Armor.encode(packets.map{|p| p.build }.join, marker: type)
+        OpenPGP::Armor.encode(packets.map{|p| p.build }.join, marker: marker)
       else
         packets.map{|p| p.build }.join
       end
