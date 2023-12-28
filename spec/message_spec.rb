@@ -1,50 +1,61 @@
-require File.join(File.dirname(__FILE__), 'spec_helper')
+require 'spec_helper'
 require 'pry'
 
 describe OpenPGP::Message, " at <http://ar.to/pgp.txt>" do
-  before :each do
-    @ascii = File.read(File.join(File.dirname(__FILE__), 'data', 'pgp.txt'))
-    @ascii.force_encoding(Encoding::ASCII) if @ascii.respond_to?(:force_encoding)
-  end
+  let(:ascii) { File.read(File.join(__dir__, 'data', 'pgp.txt')).tap { |s| s.force_encoding(Encoding::ASCII) if s.respond_to?(:force_encoding) } }
 
   context "when dearmored" do
-    it "should return a binary string of 1,939 bytes" do
-      lambda { @binary = OpenPGP.dearmor(@ascii) }.should_not raise_error
-      @binary.should_not be_empty
-      @binary.should be_a_kind_of(String)
-      @binary.should have(1_939).characters
+    subject { OpenPGP.dearmor(ascii) }
+
+    it "returns a binary string of 1,939 bytes" do
+      expect { subject }.not_to raise_error
+      expect(subject).not_to be_empty
+      expect(subject).to be_a_kind_of(String)
+      expect(subject.size).to eq(1_939)
     end
 
-    it "should have the CRC24 checksum of 0x3B1080" do
-      lambda { @binary = OpenPGP.dearmor(@ascii, nil, :crc => true) }.should_not raise_error
+    it "has the CRC24 checksum of 0x3B1080" do
+      expect { OpenPGP.dearmor(ascii, nil, crc: true) }.not_to raise_error
     end
   end
 
   context "when parsed" do
-    it "should return a sequence of packets" do
-      lambda { @message = OpenPGP::Message.parse(OpenPGP.dearmor(@ascii)) }.should_not raise_error
-      @message.should be_a_kind_of(OpenPGP::Message)
-      @message.packets.should have(9).items
+    subject { OpenPGP::Message.parse(OpenPGP.dearmor(ascii)) }
+
+    it "returns a sequence of packets" do
+      expect { subject }.not_to raise_error
+      expect(subject).to be_a_kind_of(OpenPGP::Message)
+      expect(subject.packets.size).to eq(9)
     end
 
-    it "should contain a public key packet" do
-      @message = OpenPGP::Message.parse(OpenPGP.dearmor(@ascii))
-      @message.map(&:class).should include(OpenPGP::Packet::PublicKey)
+    it "contains a public key packet" do
+      expect(subject.map(&:class)).to include(OpenPGP::Packet::PublicKey)
     end
 
-    it "should contain a public subkey packet" do
-      @message = OpenPGP::Message.parse(OpenPGP.dearmor(@ascii))
-      @message.map(&:class).should include(OpenPGP::Packet::PublicSubkey)
+    it "contains a public subkey packet" do
+      expect(subject.map(&:class)).to include(OpenPGP::Packet::PublicSubkey)
     end
 
-    it "should contain three user ID packets" do
-      @message = OpenPGP::Message.parse(OpenPGP.dearmor(@ascii))
-      @message.map(&:class).should include(OpenPGP::Packet::UserID)
-      @message.find_all { |packet| packet.is_a?(OpenPGP::Packet::UserID) }.should have(3).items
+    it "contains three user ID packets" do
+      expect(subject.select { |packet| packet.is_a?(OpenPGP::Packet::UserID) }.size).to eq(3)
     end
 
     it "loads real message" do
-      msg = described_class.parse(OpenPGP.dearmor(File.read(File.join(File.dirname(__FILE__), 'data', 'msg.pgp'))))
+      msg = described_class.parse(OpenPGP.dearmor(File.read(File.join(__dir__, 'data', 'msg.pgp'))))
+      # Assertions for 'msg' if needed
+    end
+
+    it "loads real message with unknown length" do
+      msg = described_class.parse(OpenPGP.dearmor(File.read(File.join(__dir__, 'data', 'unknown_length.pgp'))))
+      expect(msg.packets[1]).to be_a(OpenPGP::Packet::LiteralData)
+      expect(msg.packets[1].data).to eq(File.read(File.join(__dir__, 'data', 'unknown_length')))
+      
+      # Assertions for 'msg' if needed
+    end
+
+    it "loads real message with decompressed" do
+      msg = described_class.parse(OpenPGP.dearmor(File.read(File.join(__dir__, 'data', 'decompressed.pgp'))))
     end
   end
 end
+

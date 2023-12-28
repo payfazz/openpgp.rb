@@ -133,20 +133,30 @@ module OpenPGP
     # @see    http://tools.ietf.org/html/rfc4880#section-4.2.2
     def self.parse_new_format(data)
       tag = data.getbyte & 63
-      len = data.getbyte
 
-      case len
-      when 0..191   # 4.2.2.1. One-Octet Lengths
-        data_length = len
-      when 192..223 # 4.2.2.2. Two-Octet Lengths
-        data_length = ((len - 192) << 8) + data.getbyte + 192
-      when 224..254 # 4.2.2.4. Partial Body Lengths
-        data_length = 1 << (len & 0x1f)
-      when 255      # 4.2.2.3. Five-Octet Lengths
-        data_length = (data.getbyte << 24) | (data.getbyte << 16) | (data.getbyte << 8) | data.getbyte
+      should_stop = false
+      Buffer.open do |buffer|
+        until should_stop || data.eof? do
+          len = data.getbyte
+          case len
+          when 0..191   # 4.2.2.1. One-Octet Lengths
+            data_length = len
+            should_stop = true
+          when 192..223 # 4.2.2.2. Two-Octet Lengths
+            data_length = ((len - 192) << 8) + data.getbyte + 192
+            should_stop = true
+          when 224..254 # 4.2.2.4. Partial Body Lengths
+            data_length = 1 << (len & 0x1f)
+          when 255      # 4.2.2.3. Five-Octet Lengths
+            data_length = (data.getbyte << 24) | (data.getbyte << 16) | (data.getbyte << 8) | data.getbyte
+            should_stop = true
+          end
+          buffer.write(data.read(data_length))
+        end
+
+        buffer.rewind
+        Packet.for(tag).parse_body(buffer, :tag => tag)
       end
-
-      Packet.for(tag).parse_body(Buffer.new(data.read(data_length)), :tag => tag)
     end
 
     ##
