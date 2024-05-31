@@ -5,6 +5,12 @@ This is a pure-Ruby implementation of the OpenPGP Message Format (RFC 4880).
 
 * <http://github.com/bendiken/openpgp>
 
+
+### About This Fork
+I based on original repo to implement pure ruby OpenPGP message encryption/descryption.
+Originally, it only supports message parsing/building with some bugs which I've fixed them
+This is for work purpose mostly to communicate bank system, so only a subset that's necessary is implemented.
+
 ### About OpenPGP
 
 OpenPGP is the most widely-used e-mail encryption standard in the world. It
@@ -36,6 +42,37 @@ Examples
     text = open('http://openpgp.rubyforge.org/pgp.txt').read
 
     msg = OpenPGP::Message.parse(OpenPGP.dearmor(text))
+  
+### Create a OpenPGP Message
+```ruby=
+    class OpenPGPRBAdapter < OpenPGPAdapter
+      def initialize
+        super()
+        @kr = OpenPGP::KeyRing.new
+      end
+
+      def decrypt(armored_text, passphrase: nil)
+        OpenPGP.collect_literal(@kr.decrypt(armored_text))
+      end
+
+      def encrypt(data, recipient:, signer: nil, signer_passphrase: nil, cipher_algo: :aes256, digest_algo: :sha256, compress_algo: :zip)
+        msg = @kr.encrypt(data, recipient: recipient, signer: signer, cipher_algo: cipher_algo, digest_algo: digest_algo, compress_algo: compress_algo)
+        msg.build
+      end
+
+      def detached_sign(data, signer:, passphrase: nil)
+        msg = @kr.detached_sign(data, signer: signer)
+        msg.build
+      end
+
+      def import(key_path, passphrase: nil)
+        # support binary format
+        content = File.read(key_path)
+        content = OpenPGP::Message.parse(content) unless content.force_encoding("utf-8").valid_encoding?
+        @kr.import(content, passphrase: passphrase)
+      end
+    end
+```
 
 ### Generating a new keypair
 
