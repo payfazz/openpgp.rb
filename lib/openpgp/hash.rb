@@ -23,8 +23,8 @@ module OpenPGP
       LENGTH = OpenSSL::Digest::SHA1.new.digest.length * 8
 
       def initialize(data)
-	@hash = OpenSSL::Digest::SHA1.new
-	super(data)
+	      @hash = OpenSSL::Digest::SHA1.new
+	      super(data)
       end
     end
 
@@ -32,8 +32,8 @@ module OpenPGP
       LENGTH = OpenSSL::Digest::SHA256.new.digest.length * 8
 
       def initialize(data)
-	@hash = OpenSSL::Digest::SHA256.new
-	super(data)
+	      @hash = OpenSSL::Digest::SHA256.new
+	      super(data)
       end
     end
 
@@ -41,8 +41,8 @@ module OpenPGP
       LENGTH = OpenSSL::Digest::SHA384.new.digest.length * 8
 
       def initialize(data)
-	@hash = OpenSSL::Digest::SHA384.new
-	super(data)
+	      @hash = OpenSSL::Digest::SHA384.new
+	      super(data)
       end
     end
 
@@ -50,8 +50,8 @@ module OpenPGP
       LENGTH = OpenSSL::Digest::SHA512.new.digest.length * 8
 
       def initialize(data)
-	@hash = OpenSSL::Digest::SHA512.new
-	super(data)
+	      @hash = OpenSSL::Digest::SHA512.new
+	      super(data)
       end
     end
 
