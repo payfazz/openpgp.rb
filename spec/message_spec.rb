@@ -2,8 +2,8 @@ require 'spec_helper'
 require 'pry'
 
 describe OpenPGP::Message, " at <http://ar.to/pgp.txt>" do
-  let(:ascii) { File.read(File.join(__dir__, 'data', 'pgp.txt')).tap { |s| s.force_encoding(Encoding::ASCII) if s.respond_to?(:force_encoding) } }
 
+  let(:ascii) { File.read(File.join(__dir__, 'data', 'pgp.txt')).tap { |s| s.force_encoding(Encoding::ASCII) if s.respond_to?(:force_encoding) } }
   context "when dearmored" do
     subject { OpenPGP.dearmor(ascii) }
 
@@ -49,7 +49,7 @@ describe OpenPGP::Message, " at <http://ar.to/pgp.txt>" do
       msg = described_class.parse(OpenPGP.dearmor(File.read(File.join(__dir__, 'data', 'unknown_length.pgp'))))
       expect(msg.packets[1]).to be_a(OpenPGP::Packet::LiteralData)
       expect(msg.packets[1].data).to eq(File.read(File.join(__dir__, 'data', 'unknown_length')))
-      
+
       # Assertions for 'msg' if needed
     end
 

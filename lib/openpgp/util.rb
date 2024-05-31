@@ -66,4 +66,71 @@ module OpenPGP
   def self.bitlength(data)
     data.empty? ? 0 : (data.size - 1) * 8 + (Math.log(data[0].ord) / Math.log(2)).floor + 1
   end
+
+  # Should I deal with multi literal
+  def self.collect_literal(message)
+    ret = ""
+
+    message.each do |p|
+      case p
+      when OpenPGP::Packet::LiteralData
+        ret += p.data
+      when OpenPGP::Packet::CompressedData
+        ret += collect_literal(p.decompress)
+      end
+    end
+    ret
+  end
+
+  def self.xor_strings(a, b)
+    a, b = [b, a] if a.length < b.length
+    a = a[0...b.length] if b.length != a.length
+    a.unpack("c*").zip(b.unpack("c*")).map { |v| v[0] ^ v[1] }.pack("c*")
+  end
+
+  def self.addtrailer(data, sig)
+    trailer = sig.hashed_data_for_signing
+
+    case sig.version
+    when 3
+      data + trailer[1..-1]
+    when 4
+      OpenPGP::Buffer.write do |b|
+        b.write(data)
+        b.write(trailer)
+        b.write("\x04\xff")
+        b.write_number(trailer.size, 4)
+      end.force_encoding("ASCII-8BIT")
+    end
+  end
+
+  def self.openpgp_cipher_cfb_decrypt(cipher_ecb, key, data, integrity_packet = false, bs = 16)
+    cipher_ecb.encrypt
+    cipher_ecb.key = key
+
+    fr = "\x00" * bs
+    fre = cipher_ecb.update(fr)
+
+    fr = data[0...bs]
+
+    prefix = xor_strings(fre, fr)
+
+    fre = cipher_ecb.update(fr)
+
+    p = ""
+    x = integrity_packet ? 2 : 0
+
+    while x + bs < data.length
+      substr = data[x...x + bs]
+      p += xor_strings(fre, substr)
+
+      fre = cipher_ecb.update(substr)
+      x += bs
+    end
+
+    p += xor_strings(fre, data[x...x + bs])
+    p = p[bs..-1]
+
+    prefix + (integrity_packet ? prefix[bs - 2...bs] : "") + p
+  end
 end

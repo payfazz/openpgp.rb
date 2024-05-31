@@ -257,6 +257,24 @@ module OpenPGP
         end
       end
 
+      def self.generate(pub:, pub_key_id:, algorithm: Constant::AsymmetricKeyAlgorithm::RSAEncryptOrSign, cipher_algorithm: Constant::SymmetricKeyAlgorithm::AES256)
+        session_key = case cipher_algorithm
+                      when Constant::SymmetricKeyAlgorithm::AES128
+                        OpenSSL::Random.random_bytes(128 >> 3)
+                      when Constant::SymmetricKeyAlgorithm::AES192
+                        OpenSSL::Random.random_bytes(192 >> 3)
+                      when Constant::SymmetricKeyAlgorithm::AES256
+                        OpenSSL::Random.random_bytes(256 >> 3)
+                      end
+        sum = [session_key.unpack("C*").reduce { |sum, num| sum + num }].pack("n")
+        mpi = OpenPGP::PKCS1.eme_pkcs_1_5_encode([cipher_algorithm].pack("c") + session_key + sum,
+          pub.n.to_s(2).length,)
+        mpi = pub.public_encrypt(mpi, OpenSSL::PKey::RSA::NO_PADDING)
+
+        new(version: 3, key_id: pub_key_id, algorithm: algorithm, mpis: [mpi],
+          cipher_algorithm: cipher_algorithm, session_key: session_key,)
+      end
+
       def write_body(buffer)
         buffer.write_byte(version)
         buffer.write_number(key_id, 8)
@@ -264,6 +282,20 @@ module OpenPGP
         mpis.each do |mpi|
           buffer.write_mpi(mpi)
         end
+      end
+
+      def extract_session_key(pri)
+        symkey = pri.private_decrypt(mpis[0], OpenSSL::PKey::RSA::NO_PADDING)
+        symkey = OpenPGP::PKCS1.eme_pkcs_1_5_decode(symkey)
+        algo = symkey[0].unpack("c").last
+        data = symkey[1...-2]
+        cksum = symkey.unpack("C*")[-2..-1]
+        # translate: sum(data).to_uint8_array == cksum
+        raise "checksum failed" unless [data.unpack("C*").reduce { |sum, num| sum + num }].pack("n").unpack("C*") == cksum
+
+        @session_key = data
+        @cipher_algorithm = algo
+        nil
       end
 
     end
@@ -930,6 +962,30 @@ module OpenPGP
       def write_body(buffer)
         buffer.write_byte(version)
         buffer.write(data)
+      end
+
+      def self.encrypt(to_encrypted, cipher_algorithm:, session_key:)
+        cipher_name = case cipher_algorithm
+                      when OpenPGP::Constant::SymmetricKeyAlgorithm::AES128
+                        "aes-128-cfb"
+                      when OpenPGP::Constant::SymmetricKeyAlgorithm::AES192
+                        "aes-192-cfb"
+                      when OpenPGP::Constant::SymmetricKeyAlgorithm::AES256
+                        "aes-256-cfb"
+                      end
+        # block size = 16
+        prefix = OpenSSL::Random.random_bytes(16)
+        prefix += prefix[-2..-1]
+
+        to_encrypted = prefix + to_encrypted + "\xd3\x14".force_encoding("ASCII-8BIT")
+        digest = OpenPGP::Hash::SHA1.new(to_encrypted).digest
+
+        cipher = OpenSSL::Cipher.new(cipher_name)
+        cipher.encrypt
+        cipher.iv = "\x00" * 16
+        cipher.key = session_key
+
+        new(version: 1, data: cipher.update(to_encrypted + digest) + cipher.final)
       end
     end
 
