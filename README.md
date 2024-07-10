@@ -7,9 +7,7 @@ This is a pure-Ruby implementation of the OpenPGP Message Format (RFC 4880).
 
 
 ### About This Fork
-I based on original repo to implement pure ruby OpenPGP message encryption/descryption.
-Originally, it only supports message parsing/building with some bugs which I've fixed them
-This is for work purpose mostly to communicate bank system, so only a subset that's necessary is implemented.
+I implemented pure Ruby OpenPGP message encryption and decryption based on the original repository. The original repository only supported message parsing and building, and it had some bugs which I have fixed. This implementation is primarily for work purposes, specifically to communicate with a bank system. Therefore, only the necessary subset of features is implemented. But it should be sufficient for most use case. (encrypt, decrypt, sign with gzip-compress)
 
 ### About OpenPGP
 
